@@ -1,16 +1,22 @@
 import time, machine
 from wlan import connect_wifi
-from flash import flash_led
 import read_sensors
 import umqtt.simple
 import mqtt
+from flash_led import flash_led
+from pulse_led import pulse_led
 
-
+# Initialize the onboard LED
+led = machine.Pin(25, machine.Pin.OUT)
 
 def main():
+    led_task = None # led to run asynchronously
+    led_task = flash_led(led, 20, led_task) # LED flashes quickly until connected
+
     # Connect to WiFi
     try:
         wifi = connect_wifi()
+        led_task = pulse_led(1, 10, led_task) # LED pulses slowly when connected
     except KeyboardInterrupt:
         machine.reset()
     except Exception as e:
